@@ -7,8 +7,6 @@ admin.initializeApp({
 	storageBucket: 'arva-3193d.appspot.com',
 });
 
-const imgSix = 'iVBORw0KGgoAAAANSUhEUgAAAD0AAAA8CAYAAADVPrJMAAAACXBIWXMAAAsSAAALEgHS3X78AAABlElEQVRoge2arU4DQRSFDwRMDaYGU4OpwaDRmBo0b8BLABKN4BHQCBSGNKnBYGpqMDWYGkwNAnLILpBAZxb2TFNy7pc0TTqbmfn23vnZ7qy9Ht+cATiFD8N1I9kPQtqFkHYhpF0IaRcspTdWoA+fHO0C+73F5aMpcDVu3Uyktwsh7UJIuxDSLoS0CyHtQki7ENIuhLQLmr+LLgfp8pM7YDZfmVsa6e1CSLuwHOnOpqae+YukGo10bmbud5vVk7vuX0mn3lrU7G0D3U67dhqikZ4+p8spw1c2i+htpctRRXkyk3RXszl5eAIOdtLXMNqU4/soflCNdf5+2G/Whii9NdKMNKOQG5N1RHNR/QlKi9DN3rePsqq+QWFRakMqzU6VEGdKX0+kVWrXaXZOGJF3Lu7lDyv6zQk7qRJnXbmV4Q+U2ZGxs21SnaLnI33WVJQ7fsFU5wTE5ajpjozjlzer5KRY/MwJI8aoc3PCHReXLH5/pRbluBUuSymWc9CGQoWj9xvi0dKFkHYhpF0IaRdC2gU/aQBvCrhnlpN89O4AAAAASUVORK5CYII=';
-
 export const getStockists = functions.https.onRequest(async (request, response) =>  {
 	try {
 		const res = await admin.firestore().collection('stockists').get();
