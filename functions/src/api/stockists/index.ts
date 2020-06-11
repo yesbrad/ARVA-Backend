@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { UploadImagePNG } from '../../utill';
+import { UploadImagePNG, BearerToJWT } from '../../utill';
 
 export const getStockists = functions.https.onRequest(async (request, response) =>  {
 	try {
@@ -16,9 +16,23 @@ export const getStockists = functions.https.onRequest(async (request, response) 
 });
 
 export const addStockist = functions.https.onRequest(async (request, response) => {
-	response.setHeader("Access-Control-Allow-Origin", '*');
+	response.setHeader("Access-Control-Allow-Origin", 'http://localhost:3000');
+	response.setHeader('Access-Control-Allow-Credentials', 'true');
+
+	if (request.method === 'OPTIONS') {
+		response.set('Access-Control-Allow-Methods', 'POST');
+		response.set('Access-Control-Allow-Headers', 'Authorization');
+		response.set('Access-Control-Max-Age', '3600');
+		response.status(204).send('');
+	}
 
 	const { ID, image64, title} = JSON.parse(request.body);
+	
+	try {
+		await admin.auth().verifyIdToken(BearerToJWT(request.headers.authorization))
+	} catch {
+		response.status(401).send('Invalid Token');
+	}
 	
 	if(ID == null || image64 == null || title == null) {
 		console.log('Missing Stockist Data');
@@ -49,9 +63,21 @@ export const addStockist = functions.https.onRequest(async (request, response) =
 });
 
 export const removeStockist = functions.https.onRequest(async (request, response) => {
-	response.setHeader("Access-Control-Allow-Origin", '*');
+	response.setHeader("Access-Control-Allow-Origin", 'http://localhost:3000');
+	response.setHeader('Access-Control-Allow-Credentials', 'true');
 
-	console.log(request.body);
+	if (request.method === 'OPTIONS') {
+		response.set('Access-Control-Allow-Methods', 'POST');
+		response.set('Access-Control-Allow-Headers', 'Authorization');
+		response.set('Access-Control-Max-Age', '3600');
+		response.status(204).send('');
+	}
+
+	try {
+		await admin.auth().verifyIdToken(BearerToJWT(request.headers.authorization))
+	} catch {
+		response.status(401).send('Invalid Token');
+	}
 
 	const { ID } = JSON.parse(request.body);
 	

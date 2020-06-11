@@ -21,3 +21,5 @@ export const UploadImagePNG = async (image64: string, path: string) => {
 		throw new Error("ImageURI was empty");
 	}
 };
+
+export const BearerToJWT = (bearer: any) => String(bearer).replace('Bearer ', '')
