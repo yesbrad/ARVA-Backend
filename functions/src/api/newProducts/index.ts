@@ -2,20 +2,20 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { UploadImagePNG, BearerToJWT } from '../../utill';
 
-export const getBrands = functions.https.onRequest(async (request, response) =>  {
+export const getProducts = functions.https.onRequest(async (request, response) =>  {
 	try {
-		const res = await admin.firestore().collection('brands').get();
-		const brands: any = [];
-		res.docs.map((val) => { brands.push({...val.data()})});
+		const res = await admin.firestore().collection('newProducts').get();
+		const newProducts: any = [];
+		res.docs.map((val) => { newProducts.push({...val.data()})});
 		response.setHeader("Access-Control-Allow-Origin", '*');
-		response.send({ brands });
+		response.send({ newProducts });
 	} catch {
-		console.log("Server Error Stockist")
+		console.log("Server Error NewProducts")
 		response.sendStatus(500);
 	}
 });
 
-export const addBrand = functions.https.onRequest(async (request, response) => {
+export const addProduct = functions.https.onRequest(async (request, response) => {
 	response.setHeader("Access-Control-Allow-Origin", 'http://localhost:3000');
 	response.setHeader('Access-Control-Allow-Credentials', 'true');
 
@@ -32,35 +32,37 @@ export const addBrand = functions.https.onRequest(async (request, response) => {
 		response.status(401).send('Invalid Token');
 	}
 
-	const { brandID, brandImage } = JSON.parse(request.body);
+	const { newProductID, newProductImage, newProductName, newProductDescription } = JSON.parse(request.body);
 	
-	if(brandID == null || brandImage == null) {
-		console.log('Missing Stockist Data');
-		response.status(500).send('Missing Stockist Data');
+	if(newProductID == null || newProductImage == null || newProductName == null || newProductDescription == null) {
+		console.log('Missing New Product Data');
+		response.status(500).send('Missing New Product Data');
 	}
 
 	let imageURI= '';
 
 	try {
-        imageURI = await UploadImagePNG(brandImage, 'brands/' + brandID);
+        imageURI = await UploadImagePNG(newProductImage, 'newProducts/' + newProductID);
 	} catch (err) {
 		console.log("Image Upload Failed", err)
 		response.status(500).send('Image Upload Failed');
 	}
 
 	try {
-		await admin.firestore().collection('brands').doc(String(brandID)).set({
-			brandID,
-			brandImage: imageURI,
+		await admin.firestore().collection('newProducts').doc(String(newProductID)).set({
+			newProductID,
+			newProductImage: imageURI,
+			newProductName,
+			newProductDescription
 		});
 		response.send('Finished Upload');
 	} catch {
-		console.log("Server Error Brands adding to storage");
-		response.status(500).send('Server Error Brands adding to storage');
+		console.log("Server Error New Product adding to storage");
+		response.status(500).send('Server Error New Product adding to storage');
 	}
 });
 
-export const removeBrand = functions.https.onRequest(async (request, response) => {
+export const removeProducts = functions.https.onRequest(async (request, response) => {
 	response.setHeader("Access-Control-Allow-Origin", 'http://localhost:3000');
 	response.setHeader('Access-Control-Allow-Credentials', 'true');
 
@@ -77,15 +79,15 @@ export const removeBrand = functions.https.onRequest(async (request, response) =
 		response.status(401).send('Invalid Token');
 	}
 
-	const { brandID } = JSON.parse(request.body);
+	const { newProductID } = JSON.parse(request.body);
 	
-	if(brandID == null) {
-		response.status(500).send('Missing ID');
+	if(newProductID == null) {
+		response.status(500).send('Missing NewProductID');
 	}
 
 	try {
-		await admin.firestore().collection('brands').doc(String(brandID)).delete();
-		response.send('Removed' + brandID);
+		await admin.firestore().collection('newProducts').doc(String(newProductID)).delete();
+		response.send('Removed' + newProductID);
 	} catch {
 		response.status(500).send('Removing Failed');
 	}
