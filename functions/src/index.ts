@@ -13,3 +13,4 @@ admin.initializeApp({
 export * from './api/stockists';
 export * from './api/brands';
 export * from './api/newProducts';
+export * from './api/brochures';
