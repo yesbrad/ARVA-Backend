@@ -1,16 +1,20 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { UploadImagePNG, BearerToJWT } from '../../utill';
+import { BearerToJWT } from '../../utill';
 var cors = require('cors')({ origin: true });
+// var csv = require('csv');
 
-export const getStockists = functions.https.onRequest(async (request, response) => {
+export const getStockistsAll = functions.https.onRequest(async (request, response) => {
 	return cors(request, response, async () => {
+		// response.send("CUNT");
 		try {
-			const res = await admin.firestore().collection('stockists').get();
-			const stockists: any = [];
-			res.docs.map((val) => { stockists.push({ ...val.data() }) });
-			response.setHeader("Access-Control-Allow-Origin", '*');
-			response.send({ stockists });
+			const res = await admin.firestore().collection('Stockists').doc('StockistArray').get();
+			// let stockists: any = [];
+			// res.docs.map((val) => { stockists.push({ ...val.data() }) });
+			// stockists =	res.docs[0].data;
+			// response.setHeader("Access-Control-Allow-Origin", '*');
+			// console.log("Get Stockist Data: ", res.data);
+			response.send({ stockists: res.data() });
 		} catch {
 			console.log("Server Error Stockist")
 			response.sendStatus(500);
@@ -20,7 +24,8 @@ export const getStockists = functions.https.onRequest(async (request, response) 
 
 export const addStockist = functions.https.onRequest(async (request, response) => {
 	return cors(request, response, async () => {
-		const { ID, image64, title } = JSON.parse(request.body);
+
+		const { stockists } = JSON.parse(request.body);
 	
 		try {
 			await admin.auth().verifyIdToken(BearerToJWT(request.headers.authorization))
@@ -28,32 +33,35 @@ export const addStockist = functions.https.onRequest(async (request, response) =
 			response.status(401).send('Invalid Token');
 		}
 	
-		if (ID == null || image64 == null || title == null) {
+		if (stockists == null) {
 			console.log('Missing Stockist Data');
 			response.status(500).send('Missing Stockist Data');
 		}
 
-		let imageURI = '';
-
-		try {
-			imageURI = await UploadImagePNG(image64, 'stockist/' + ID);
-		} catch (err) {
-			console.log("Image Upload Failed", err)
-			response.status(500).send('Image Upload Failed');
-		}
-
-		try {
-			await admin.firestore().collection('stockists').doc(String(ID)).set({
-				ID,
-				imageURI,
-				title
-			});
+		try {	
+			await admin.firestore().collection('Stockists').doc('StockistArray').delete();
+			await admin.firestore().collection('Stockists').doc('StockistArray').set({ stockists });
 			console.log('Finished Upload')
 			response.send('Finished Upload');
 		} catch {
 			console.log("Server Error Stockist adding to storage");
 			response.status(500).send('Server Error Stockist adding to storage');
 		}
+
+		// await deleteCollection(admin.firestore(), 'stockists', 1000);
+
+		// try {
+		// 	await admin.firestore().collection('stockists').doc(String(ID)).set({
+		// 		ID,
+		// 		imageURI,
+		// 		title
+		// 	});
+		// 	console.log('Finished Upload')
+		// 	response.send('Finished Upload');
+		// } catch {
+		// 	console.log("Server Error Stockist adding to storage");
+		// 	response.status(500).send('Server Error Stockist adding to storage');
+		// }
 	});
 });
 

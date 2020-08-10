@@ -27,9 +27,9 @@ export const addBrochure = functions.https.onRequest(async (request, response) =
 			response.status(401).send('Invalid Token');
 		}
 
-		const { brochureID, brochurePDFURL } = JSON.parse(request.body);
+		const { brochureID, brochurePDFURL, brochureTitle, brochureDescription, brochureImageURL } = JSON.parse(request.body);
 	
-		if (brochureID == null || brochurePDFURL == null) {
+		if (brochureID == null || brochurePDFURL == null || brochureTitle == null || brochureDescription == null || brochureImageURL == null) {
 			console.log('Missing Brochure Data');
 			response.status(500).send('Missing Brochure Data');
 		}
@@ -38,6 +38,9 @@ export const addBrochure = functions.https.onRequest(async (request, response) =
 			await admin.firestore().collection('brochures').doc(String(brochureID)).set({
 				brochureID,
 				brochurePDFURL,
+				brochureTitle,
+				brochureDescription,
+				brochureImageURL 
 			});
 			response.send('Finished Upload');
 		} catch {
