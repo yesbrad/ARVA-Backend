@@ -2,21 +2,18 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { BearerToJWT } from '../../utill';
 var cors = require('cors')({ origin: true });
-// var csv = require('csv');
+
+const stockistCollectionID = 'stockists';
 
 export const getStockistsAll = functions.https.onRequest(async (request, response) => {
 	return cors(request, response, async () => {
-		// response.send("CUNT");
 		try {
-			const res = await admin.firestore().collection('Stockists').get();
-			// let stockists: any = [];
-			// res.docs.map((val) => { stockists.push({ ...val.data() }) });
-			// stockists =	res.docs[0].data;
-			// response.setHeader("Access-Control-Allow-Origin", '*');
-			// console.log("Get Stockist Data: ", res.data);
-			response.send({ stockists: res.docs });
-		} catch {
-			console.log("Server Error Stockist")
+			const res = await admin.firestore().collection(stockistCollectionID).get();
+			let stockists: any = [];
+			res.docs.map((val) => { stockists.push({ ...val.data() }) });
+			response.send({ stockists });
+		} catch (err) {
+			console.log(err.message)
 			response.sendStatus(500);
 		}
 	});
@@ -47,7 +44,7 @@ export const addStockist = functions.https.onRequest(async (request, response) =
 	}
 
 	try {
-		await admin.firestore().collection('stockists').doc(String(ID)).set({
+		await admin.firestore().collection(stockistCollectionID).doc(String(ID)).set({
 			ID,
 			website,
 			name,
@@ -77,7 +74,7 @@ export const removeStockist = functions.https.onRequest(async (request, response
 		}
 
 		try {
-			await admin.firestore().collection('stockists').doc(String(ID)).delete();
+			await admin.firestore().collection(stockistCollectionID).doc(String(ID)).delete();
 			response.send('Removed' + ID);
 		} catch {
 			response.status(500).send('Removing Failed');
